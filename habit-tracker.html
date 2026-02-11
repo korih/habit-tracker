@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streak & XP Tracker</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .add-skill-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .add-skill-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .import-export-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .export-btn, .import-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .export-btn:hover, .import-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .import-input {
+            display: none;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .skill-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .skill-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .delete-btn {
+            background: #feb2b2;
+            color: #c53030;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #fc8181;
+        }
+
+        .streak-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f56565;
+        }
+
+        .xp-display {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .stat {
+            flex: 1;
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .xp-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .xp-half {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .xp-half:hover {
+            background: #90cdf4;
+        }
+
+        .xp-full {
+            background: #9ae6b4;
+            color: #22543d;
+        }
+
+        .xp-full:hover {
+            background: #68d391;
+        }
+
+        .xp-remove {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .xp-remove:hover {
+            background: #fc8181;
+        }
+
+        .rename-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            margin-right: 8px;
+        }
+
+        .rename-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .modal-btn-cancel {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .modal-btn-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .last-practice {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [skills, setSkills] = useState([]);
+            const [showModal, setShowModal] = useState(false);
+            const [modalType, setModalType] = useState('add'); // 'add', 'rename', 'manual'
+            const [newSkillName, setNewSkillName] = useState('');
+            const [selectedSkillId, setSelectedSkillId] = useState(null);
+            const [manualHours, setManualHours] = useState('');
+            const [manualStreaks, setManualStreaks] = useState('');
+
+            // Load skills from localStorage on mount
+            useEffect(() => {
+                const saved = localStorage.getItem('habitTrackerSkills');
+                if (saved) {
+                    setSkills(JSON.parse(saved));
+                }
+            }, []);
+
+            // Save skills to localStorage whenever they change
+            useEffect(() => {
+                localStorage.setItem('habitTrackerSkills', JSON.stringify(skills));
+            }, [skills]);
+
+            const getTodayString = () => {
+                return new Date().toISOString().split('T')[0];
+            };
+
+            const calculateStreak = (history) => {
+                if (history.length === 0) return 0;
+
+                const sortedHistory = [...history].sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                );
+
+                const today = getTodayString();
+                const lastPractice = sortedHistory[0].date;
+
+                // Check if practiced today or yesterday
+                const daysSinceLastPractice = Math.floor(
+                    (new Date(today) - new Date(lastPractice)) / (1000 * 60 * 60 * 24)
+                );
+
+                if (daysSinceLastPractice > 1) return 0;
+
+                let streak = 0;
+                let currentDate = new Date(today);
+
+                for (const entry of sortedHistory) {
+                    const entryDate = new Date(entry.date);
+                    const dateString = entryDate.toISOString().split('T')[0];
+                    const checkDateString = currentDate.toISOString().split('T')[0];
+
+                    if (dateString === checkDateString) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+
+                return streak;
+            };
+
+            const addSkill = () => {
+                if (!newSkillName.trim()) return;
+
+                if (modalType === 'rename') {
+                    setSkills(skills.map(skill => 
+                        skill.id === selectedSkillId 
+                            ? { ...skill, name: newSkillName }
+                            : skill
+                    ));
+                } else {
+                    const newSkill = {
+                        id: Date.now().toString(),
+                        name: newSkillName,
+                        totalXP: 0,
+                        longestStreak: 0,
+                        history: []
+                    };
+                    setSkills([...skills, newSkill]);
+                }
+
+                setNewSkillName('');
+                setShowModal(false);
+                setSelectedSkillId(null);
+            };
+
+            const openRenameModal = (skillId, currentName) => {
+                setSelectedSkillId(skillId);
+                setNewSkillName(currentName);
+                setModalType('rename');
+                setShowModal(true);
+            };
+
+            const openManualEntryModal = (skillId) => {
+                setSelectedSkillId(skillId);
+                setManualHours('');
+                setManualStreaks('');
+                setModalType('manual');
+                setShowModal(true);
+            };
+
+            const applyManualEntry = () => {
+                const hours = parseFloat(manualHours) || 0;
+                const streaks = parseInt(manualStreaks) || 0;
+
+                if (hours < 0 || streaks < 0) return;
+
+                setSkills(skills.map(skill => {
+                    if (skill.id !== selectedSkillId) return skill;
+
+                    const updatedSkill = { ...skill };
+                    
+                    // Set total XP (replace, not add)
+                    if (hours >= 0) {
+                        updatedSkill.totalXP = hours;
+                    }
+
+                    // Replace historical streak data
+                    // Remove all entries that are marked as historical (have 0.5 XP placeholder)
+                    const today = getTodayString();
+                    const nonHistoricalEntries = updatedSkill.history.filter(h => {
+                        return h.date === today || h.xp !== 0.5;
+                    });
+
+                    updatedSkill.history = [...nonHistoricalEntries];
+
+                    // Add new historical streak days (going backwards from yesterday)
+                    if (streaks > 0) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+
+                        for (let i = 0; i < streaks; i++) {
+                            const dateString = yesterday.toISOString().split('T')[0];
+                            // Only add if date doesn't exist in history
+                            const exists = updatedSkill.history.some(h => h.date === dateString);
+                            if (!exists) {
+                                updatedSkill.history.push({ date: dateString, xp: 0.5 });
+                            }
+                            yesterday.setDate(yesterday.getDate() - 1);
+                        }
+                    }
+
+                    // Recalculate longest streak
+                    const currentStreak = calculateStreak(updatedSkill.history);
+                    updatedSkill.longestStreak = Math.max(updatedSkill.longestStreak, currentStreak);
+
+                    return updatedSkill;
+                }));
+
+                setManualHours('');
+                setManualStreaks('');
+                setShowModal(false);
+                setSelectedSkillId(null);
+            };
+
+            const exportData = () => {
+                const dataStr = JSON.stringify(skills, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `habit-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const importData = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Validate that it's an array
+                        if (!Array.isArray(importedData)) {
+                            alert('Invalid file format. Expected an array of skills.');
+                            return;
+                        }
+
+                        // Basic validation of skill structure
+                        const isValid = importedData.every(skill => 
+                            skill.id && skill.name && 
+                            typeof skill.totalXP === 'number' &&
+                            Array.isArray(skill.history)
+                        );
+
+                        if (!isValid) {
+                            alert('Invalid file format. Skills are missing required fields.');
+                            return;
+                        }
+
+                        if (confirm('This will replace all your current data. Continue?')) {
+                            setSkills(importedData);
+                            alert('Data imported successfully!');
+                        }
+                    } catch (error) {
+                        alert('Error reading file. Please make sure it\'s a valid JSON file.');
+                    }
+                };
+                reader.readAsText(file);
+                // Reset input so same file can be imported again
+                event.target.value = '';
+            };
+
+            const deleteSkill = (id) => {
+                if (confirm('Are you sure you want to delete this skill?')) {
+                    setSkills(skills.filter(s => s.id !== id));
+                }
+            };
+
+            const addXP = (skillId, xpAmount) => {
+                setSkills(skills.map(skill => {
+                    if (skill.id !== skillId) return skill;
+
+                    const today = getTodayString();
+                    const updatedHistory = [...skill.history];
+                    
+                    // Check if there's already an entry for today
+                    const todayIndex = updatedHistory.findIndex(h => h.date === today);
+                    
+                    if (todayIndex >= 0) {
+                        updatedHistory[todayIndex].xp += xpAmount;
+                    } else {
+                        updatedHistory.push({ date: today, xp: xpAmount });
+                    }
+
+                    const newTotalXP = skill.totalXP + xpAmount;
+                    const currentStreak = calculateStreak(updatedHistory);
+                    const newLongestStreak = Math.max(skill.longestStreak, currentStreak);
+
+                    return {
+                        ...skill,
+                        totalXP: newTotalXP,
+                        longestStreak: newLongestStreak,
+                        history: updatedHistory
+                    };
+                }));
+            };
+
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                const today = new Date(getTodayString());
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                if (dateString === getTodayString()) return 'Today';
+                if (dateString === yesterday.toISOString().split('T')[0]) return 'Yesterday';
+                
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🎯 Streak & XP Tracker</h1>
+                        <p>Build habits, track progress, maintain streaks</p>
+                    </div>
+
+                    <button className="add-skill-btn" onClick={() => {
+                        setModalType('add');
+                        setNewSkillName('');
+                        setShowModal(true);
+                    }}>
+                        + Add New Skill
+                    </button>
+
+                    <div className="import-export-container">
+                        <button className="export-btn" onClick={exportData}>
+                            📥 Export Data
+                        </button>
+                        <label className="import-btn">
+                            📤 Import Data
+                            <input 
+                                type="file" 
+                                accept=".json"
+                                onChange={importData}
+                                className="import-input"
+                            />
+                        </label>
+                    </div>
+
+                    {skills.length === 0 ? (
+                        <div className="empty-state">
+                            <h2>No skills yet!</h2>
+                            <p>Click "Add New Skill" to start tracking your habits</p>
+                        </div>
+                    ) : (
+                        <div className="skills-grid">
+                            {skills.map(skill => {
+                                const currentStreak = calculateStreak(skill.history);
+                                const lastEntry = skill.history.length > 0 
+                                    ? [...skill.history].sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+                                    : null;
+                                const todayXP = lastEntry && lastEntry.date === getTodayString() 
+                                    ? lastEntry.xp 
+                                    : 0;
+
+                                return (
+                                    <div key={skill.id} className="skill-card">
+                                        <div className="skill-header">
+                                            <div className="skill-name">{skill.name}</div>
+                                            <div>
+                                                <button 
+                                                    className="rename-btn"
+                                                    onClick={() => openRenameModal(skill.id, skill.name)}
+                                                >
+                                                    Rename
+                                                </button>
+                                                <button 
+                                                    className="delete-btn"
+                                                    onClick={() => deleteSkill(skill.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="streak-display">
+                                            <span>🔥</span>
+                                            <span>{currentStreak} day streak</span>
+                                        </div>
+
+                                        <div className="xp-display">
+                                            ⭐ {skill.totalXP.toFixed(1)} total hours
+                                        </div>
+
+                                        <div className="stats">
+                                            <div className="stat">
+                                                <div className="stat-value">{todayXP.toFixed(1)}</div>
+                                                <div className="stat-label">Today</div>
+                                            </div>
+                                            <div className="stat">
+                                                <div className="stat-value">{skill.longestStreak}</div>
+                                                <div className="stat-label">Best Streak</div>
+                                            </div>
+                                        </div>
+
+                                        {lastEntry && (
+                                            <div className="last-practice">
+                                                Last practiced: {formatDate(lastEntry.date)}
+                                            </div>
+                                        )}
+
+                                        <div className="action-buttons" style={{marginTop: '16px'}}>
+                                            <button 
+                                                className="xp-btn xp-half"
+                                                onClick={() => addXP(skill.id, 0.5)}
+                                            >
+                                                +0.5 XP (30 min)
+                                            </button>
+                                            <button 
+                                                className="xp-btn xp-full"
+                                                onClick={() => addXP(skill.id, 1)}
+                                            >
+                                                +1 XP (1 hour)
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="action-buttons" style={{marginTop: '8px'}}>
+                                            <button 
+                                                className="xp-btn xp-remove"
+                                                onClick={() => addXP(skill.id, -0.5)}
+                                            >
+                                                -0.5 XP (30 min)
+                                            </button>
+                                            <button 
+                                                className="xp-btn xp-remove"
+                                                onClick={() => addXP(skill.id, -1)}
+                                            >
+                                                -1 XP (1 hour)
+                                            </button>
+                                        </div>
+
+                                        <button 
+                                            className="add-skill-btn"
+                                            style={{width: '100%', marginTop: '12px', padding: '8px'}}
+                                            onClick={() => openManualEntryModal(skill.id)}
+                                        >
+                                            📝 Add Historical Data
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <div className={`modal ${showModal ? 'active' : ''}`}>
+                        <div className="modal-content">
+                            {modalType === 'add' && (
+                                <>
+                                    <h2>Add New Skill</h2>
+                                    <div className="form-group">
+                                        <label>Skill Name</label>
+                                        <input 
+                                            type="text"
+                                            placeholder="e.g., Guitar Practice, Coding, Reading"
+                                            value={newSkillName}
+                                            onChange={(e) => setNewSkillName(e.target.value)}
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter') addSkill();
+                                            }}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="modal-buttons">
+                                        <button 
+                                            className="modal-btn modal-btn-cancel"
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setNewSkillName('');
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            className="modal-btn modal-btn-submit"
+                                            onClick={addSkill}
+                                        >
+                                            Add Skill
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {modalType === 'rename' && (
+                                <>
+                                    <h2>Rename Skill</h2>
+                                    <div className="form-group">
+                                        <label>New Name</label>
+                                        <input 
+                                            type="text"
+                                            placeholder="Enter new skill name"
+                                            value={newSkillName}
+                                            onChange={(e) => setNewSkillName(e.target.value)}
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter') addSkill();
+                                            }}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="modal-buttons">
+                                        <button 
+                                            className="modal-btn modal-btn-cancel"
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setNewSkillName('');
+                                                setSelectedSkillId(null);
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            className="modal-btn modal-btn-submit"
+                                            onClick={addSkill}
+                                        >
+                                            Rename
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {modalType === 'manual' && (
+                                <>
+                                    <h2>Add Historical Data</h2>
+                                    <p style={{marginBottom: '16px', color: '#718096', fontSize: '0.9rem'}}>
+                                        Set your total hours and streak history. This will replace any previous historical data.
+                                    </p>
+                                    <div className="form-group">
+                                        <label>Total Hours Practiced</label>
+                                        <input 
+                                            type="number"
+                                            step="0.5"
+                                            min="0"
+                                            placeholder="e.g., 50"
+                                            value={manualHours}
+                                            onChange={(e) => setManualHours(e.target.value)}
+                                        />
+                                        <p style={{marginTop: '8px', color: '#718096', fontSize: '0.85rem'}}>
+                                            Sets your total XP (replaces current value)
+                                        </p>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Previous Streak Days</label>
+                                        <input 
+                                            type="number"
+                                            min="0"
+                                            placeholder="e.g., 15"
+                                            value={manualStreaks}
+                                            onChange={(e) => setManualStreaks(e.target.value)}
+                                        />
+                                        <p style={{marginTop: '8px', color: '#718096', fontSize: '0.85rem'}}>
+                                            Adds consecutive days before today (replaces old streak data)
+                                        </p>
+                                    </div>
+                                    <div className="modal-buttons">
+                                        <button 
+                                            className="modal-btn modal-btn-cancel"
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setManualHours('');
+                                                setManualStreaks('');
+                                                setSelectedSkillId(null);
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            className="modal-btn modal-btn-submit"
+                                            onClick={applyManualEntry}
+                                        >
+                                            Add Data
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
