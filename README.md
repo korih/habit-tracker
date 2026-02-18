@@ -1,0 +1,2 @@
+- TODO: make it deployable on cloudflare and use the cloudflare storage stuff
+- Could also probably use a lot of frontend changes and more features like calendar editing, deletion, etc.
