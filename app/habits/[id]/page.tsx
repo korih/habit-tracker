@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+export const runtime = 'edge'
+
+import { use, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useHabitDetail } from '@/app/hooks/useHabitDetail'
 import { FullCalendar } from '@/app/components/FullCalendar'
@@ -12,10 +14,11 @@ import { formatMinutes, formatHours } from '@/lib/colors'
 import { formatDateLabel, getMonthName } from '@/lib/dates'
 import type { UpdateHabitInput } from '@/lib/types'
 
-export default function HabitDetailPage({ params }: { params: { id: string } }) {
+export default function HabitDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const { habit, sessions, loading, error, updateHabit, logSession, deleteSession, refresh } =
-    useHabitDetail(params.id)
+    useHabitDetail(id)
 
   const now = new Date()
   const [calYear, setCalYear] = useState(now.getFullYear())
@@ -41,7 +44,7 @@ export default function HabitDetailPage({ params }: { params: { id: string } }) 
     if (!confirm('Delete this habit and all its data?')) return
     setDeleting(true)
     try {
-      await fetch(`/api/habits/${params.id}`, { method: 'DELETE' })
+      await fetch(`/api/habits/${id}`, { method: 'DELETE' })
       router.push('/')
     } catch {
       setDeleting(false)

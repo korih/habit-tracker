@@ -1,5 +1,7 @@
 'use client'
 
+export const runtime = 'edge'
+
 import { useState } from 'react'
 import { useHabits } from './hooks/useHabits'
 import { HabitCard } from './components/HabitCard'

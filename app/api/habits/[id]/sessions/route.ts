@@ -5,12 +5,13 @@ import { getDB } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import type { Session } from '@/lib/types'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser(req)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { id } = await params
   const db = getDB()
-  const habit = await db.prepare('SELECT id FROM "Habit" WHERE id = ? AND userId = ?').bind(params.id, user.id).first()
+  const habit = await db.prepare('SELECT id FROM "Habit" WHERE id = ? AND userId = ?').bind(id, user.id).first()
   if (!habit) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const { searchParams } = new URL(req.url)
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const to = searchParams.get('to')
 
   let query = 'SELECT * FROM "Session" WHERE habitId = ?'
-  const binds: string[] = [params.id]
+  const binds: string[] = [id]
   if (from) { query += ' AND date >= ?'; binds.push(from) }
   if (to) { query += ' AND date <= ?'; binds.push(to) }
   query += ' ORDER BY date DESC'
@@ -27,12 +28,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(results)
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser(req)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { id } = await params
   const db = getDB()
-  const habit = await db.prepare('SELECT id FROM "Habit" WHERE id = ? AND userId = ?').bind(params.id, user.id).first()
+  const habit = await db.prepare('SELECT id FROM "Habit" WHERE id = ? AND userId = ?').bind(id, user.id).first()
   if (!habit) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const body = await req.json() as { date?: string; minutes?: number; note?: string | null }
@@ -47,7 +49,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const existing = await db
     .prepare('SELECT id, minutes FROM "Session" WHERE habitId = ? AND date = ?')
-    .bind(params.id, date)
+    .bind(id, date)
     .first<{ id: string; minutes: number }>()
 
   let sessionId: string
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     sessionId = crypto.randomUUID()
     await db
       .prepare('INSERT INTO "Session" (id, habitId, date, minutes, note) VALUES (?, ?, ?, ?, ?)')
-      .bind(sessionId, params.id, date, minutes, note ?? null)
+      .bind(sessionId, id, date, minutes, note ?? null)
       .run()
   }
 

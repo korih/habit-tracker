@@ -1,9 +1,9 @@
 name = "habit-tracker"
-compatibility_date = "2024-02-08"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat_v2"]
 pages_build_output_dir = ".vercel/output/static"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "habit-tracker-db"
-database_id = "xxxx-xxxx-xxxx-xxxx" # You will need to replace this with your actual D1 Database ID
+database_id = "c7cde042-13c0-4d07-9518-c9be80160ec5"

@@ -1,10 +1,9 @@
+export const runtime = 'edge'
+
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from './providers/ThemeProvider'
 import { AuthProvider } from './providers/AuthProvider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Habit Tracker',
@@ -29,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
       </head>
-      <body className={inter.className}>
+      <body>
         <ThemeProvider>
           <AuthProvider>
             {children}

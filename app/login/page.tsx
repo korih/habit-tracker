@@ -1,15 +1,20 @@
+'use client'
+
 export const runtime = 'edge'
+
+import { use } from 'react'
 
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: Promise<{ error?: string }>
 }) {
+  const { error } = use(searchParams)
   const errors: Record<string, string> = {
     invalid_state: 'Authentication failed. Please try again.',
     token_exchange_failed: 'Could not sign in with Google. Please try again.',
   }
-  const errorMessage = searchParams.error ? errors[searchParams.error] ?? 'An error occurred.' : null
+  const errorMessage = error ? errors[error] ?? 'An error occurred.' : null
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
