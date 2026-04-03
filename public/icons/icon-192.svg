@@ -1,0 +1,18 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'>
+  <rect width='192' height='192' rx='40' fill='#0d1117'/>
+  <rect x='36' y='52' width='120' height='108' rx='12' fill='#161b22' stroke='#30363d' stroke-width='2'/>
+  <rect x='36' y='52' width='120' height='32' rx='12' fill='#1f6feb'/>
+  <rect x='36' y='72' width='120' height='12' fill='#1f6feb'/>
+  <rect x='60' y='38' width='12' height='28' rx='6' fill='#39d353'/>
+  <rect x='120' y='38' width='12' height='28' rx='6' fill='#39d353'/>
+  <!-- dot grid -->
+  <circle cx='66' cy='108' r='6' fill='#39d353'/>
+  <circle cx='96' cy='108' r='6' fill='#26a641'/>
+  <circle cx='126' cy='108' r='6' fill='#39d353'/>
+  <circle cx='66' cy='132' r='6' fill='#161b22' stroke='#30363d' stroke-width='2'/>
+  <circle cx='96' cy='132' r='6' fill='#39d353'/>
+  <circle cx='126' cy='132' r='6' fill='#26a641'/>
+  <circle cx='66' cy='156' r='6' fill='#39d353'/>
+  <circle cx='96' cy='156' r='6' fill='#161b22' stroke='#30363d' stroke-width='2'/>
+  <circle cx='126' cy='156' r='6' fill='#39d353'/>
+</svg>
